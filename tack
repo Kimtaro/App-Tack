@@ -1,0 +1,8 @@
+#!/usr/bin/env perl
+
+use App::Tack;
+
+use warnings;
+use strict;
+
+App::Tack->run( shift(@ARGV), @ARGV );

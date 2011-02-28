@@ -1,5 +1,3 @@
-#!/usr/bin/env perl
-
 package App::Tack;
 
 use warnings;
