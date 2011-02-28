@@ -12,13 +12,13 @@ BEGIN {
 }
 
 use App::Tack::Template;
-use constant REPLACE => '<TACK>';
 
 # TODO: How to insert a constant into a regex?
 # TODO: Handle flags for patterns
+# TODO: Better handling of optional <TACK> interpolations
 our @templates = (
-  App::Tack::Template->new('map', '\b(def|class|module|private|protected)\b'),
-  App::Tack::Template->new('sub', 'sub\s+<TACK>'),
+  App::Tack::Template->new('map', '\b(def|class|module|private|protected)\b', 'Map Ruby files'),
+  App::Tack::Template->new('(sub|def|func(t(i(o(n)?)?)?)?)', '\b(sub|def|function)(?:\s*<TACK>)?\b', 'Find subs/defs/functions, with optional name'),
 );
 
 sub run {
@@ -37,10 +37,12 @@ sub run {
   
   foreach my $template ( @templates ) {
     if ( $command =~ $template->name ) {
+      my $pattern = $template->pattern;
+      
       # Check for interpolations
-      my $interpolations = 0;
-      if ( $template->pattern =~ REPLACE ) {
-        
+      while ( $pattern =~ m/<TACK>/ && scalar(@options) > 0 ) {
+        my $replacement = shift @options;
+        $pattern =~ s/<TACK>/$replacement/;
       }
       
       # Remaining @options are flags to ack and must come first
@@ -48,11 +50,8 @@ sub run {
       my $ack_opts = join(' ', @options);
       
       # Run
-      # TODO: How to insert code into a string? Need sprintf or can interpolate?
-      my $pattern = $template->pattern;
-         $pattern =~ s/^\(\?\w*-?\w*://;
-         $pattern =~ s/\)$//;
       my $ack = "ack $ack_opts --match '$pattern'";
+      print $ack . "\n";
       system($ack);
     }
   }
@@ -71,7 +70,7 @@ END
 
 sub print_templates {
   foreach my $template ( @templates ) {
-    print '- ' . $template->name . "\n  " . $template->pattern;
+    print '- ' . $template->name . ' - ' . $template->comment .  "\n  " . $template->pattern . "\n";
   }
 }
 
