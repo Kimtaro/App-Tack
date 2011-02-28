@@ -2,6 +2,7 @@ package App::Tack;
 
 use warnings;
 use strict;
+use Data::Dumper;
 
 our $VERSION;
 our $COPYRIGHT;
@@ -10,43 +11,22 @@ BEGIN {
     $COPYRIGHT = 'Copyright 2011 Kim Ahlström.';
 }
 
-our @names = (
-	App::Tack::Template->new('map', /\b (def|class|module|private|protected) \b/ix),
-	App::Tack::Template->new('sub', /sub \s+ ___/ix),
+use App::Tack::Template;
+
+our @templates = (
+	App::Tack::Template->new(qr{map}, qr{\b (def|class|module|private|protected) \b}),
+	App::Tack::Template->new(qr{sub}, qr{sub \s+ <TACK>}),
 );
 
 sub run {
 	my $command = shift;
 	my @options = @_;
 	
-	foreach ( my $template, @names ) {
-		if ( $command eq $template->name ) {
-			
+	foreach my $template ( @templates ) {
+		if ( $command =~ $template->name ) {
+			print "hej\n";
 		}
 	}
 }
 
 1; # End of App::Tack
-
-package App::Tack::Template;
-
-use warnings;
-use strict;
-
-sub new {
-	my $class   = shift;
-	my $name    = shift;
-	my $pattern = shift;
-	
-	my $self = bless {
-		name => $name,
-		pattern => $pattern,
-	}, $class;
-	
-	return $self;
-}
-
-sub name { return shift->{name}; }
-sub pattern { return shift->{pattern}; }
-
-1; # End of App::Tack::Template
