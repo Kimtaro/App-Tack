@@ -14,17 +14,24 @@ BEGIN {
 use App::Tack::Template;
 use constant REPLACE => '<TACK>';
 
+# TODO: How to insert a constant into a regex?
+# TODO: Handle flags for patterns
 our @templates = (
-  App::Tack::Template->new(qr{map}, qr{\b (def|class|module|private|protected) \b}),
-  App::Tack::Template->new(qr{sub}, qr{sub \s+ <TACK>}),
+  App::Tack::Template->new('map', '\b(def|class|module|private|protected)\b'),
+  App::Tack::Template->new('sub', 'sub\s+<TACK>'),
 );
 
 sub run {
   my $command = shift;
   my @options = @_;
   
-  if ( $command =~ /h (e (l (p)?)?)?/ix) {
+  # TODO: Use Getopts::Long
+  if ( $command =~ /--? h (e (l (p)?)?)?/ix) {
     print_help();
+    exit;
+  }
+  elsif ( $command =~ /--templates/ix ) {
+    print_templates();
     exit;
   }
   
@@ -37,20 +44,35 @@ sub run {
       }
       
       # Remaining @options are flags to ack and must come first
+      # This includes the files ack should scan
+      my $ack_opts = join(' ', @options);
       
-      # Execute
-      system("ack");
+      # Run
+      # TODO: How to insert code into a string? Need sprintf or can interpolate?
+      my $pattern = $template->pattern;
+         $pattern =~ s/^\(\?\w*-?\w*://;
+         $pattern =~ s/\)$//;
+      my $ack = "ack $ack_opts --match '$pattern'";
+      system($ack);
     }
   }
 }
 
 sub print_help {
   print <<END;
-usage: - tack template_name [template interpolations] [ack options]
+usage: - tack template_name [template interpolations] [ack files and options]
          Run ack with the template
-       - tack h|he|hel|help
+       - tack --h|he|hel|help
          Show this help
+       - tack --templates
+         Print available templates
 END
+}
+
+sub print_templates {
+  foreach my $template ( @templates ) {
+    print '- ' . $template->name . "\n  " . $template->pattern;
+  }
 }
 
 1; # End of App::Tack
