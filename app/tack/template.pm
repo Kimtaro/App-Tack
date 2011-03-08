@@ -9,10 +9,15 @@ sub new {
 	my $name    = shift;
 	my $pattern = shift;
 	my $comment = shift;
+	my $sub;
+
+  if ( ref $pattern eq '' ) {
+    $sub = sub { [$pattern, ''] };
+  }
 
 	my $self = bless {
 		name => $name,
-		pattern => $pattern,
+		pattern => $sub,
 		comment => ($comment || ''),
 	}, $class;
 

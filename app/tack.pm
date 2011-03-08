@@ -18,15 +18,23 @@ use App::Tack::Template;
 # TODO: Better handling of optional <TACK> interpolations
 our @templates = (
   App::Tack::Template->new('map', '\b(def|class|module|private|protected)\b', 'Map Ruby files'),
+  App::Tack::Template->new('name', sub {
+    my $options = shift;
+    my $name = shift @$options;
+    
+    $name =~ s/_/_\?/;
+    
+    return(["\\b($name)\\b", '-i']);
+  }, 'Map Ruby files'),
   App::Tack::Template->new('(sub|def|func(t(i(o(n)?)?)?)?)', '\b(sub|def|function)(?:\s*<TACK>)?\b', 'Find subs/defs/functions, with optional name'),
 );
 
 sub run {
-  my $command = shift;
+  my $command = shift || '';
   my @options = @_;
   
   # TODO: Use Getopts::Long
-  if ( $command =~ /--? h (e (l (p)?)?)?/ix) {
+  if ( $command eq '' || $command =~ /--? h (e (l (p)?)?)?/ix) {
     print_help();
     exit;
   }
@@ -37,7 +45,7 @@ sub run {
   
   foreach my $template ( @templates ) {
     if ( $command =~ $template->name ) {
-      my $pattern = $template->pattern;
+      my($pattern, $ack_opts) = @{&{$template->pattern}(\@options)};
       
       # Check for interpolations
       while ( $pattern =~ m/<TACK>/ && scalar(@options) > 0 ) {
@@ -47,11 +55,11 @@ sub run {
       
       # Remaining @options are flags to ack and must come first
       # This includes the files ack should scan
-      my $ack_opts = join(' ', @options);
+      $ack_opts .= ' ' . join(' ', @options);
       
       # Run
       my $ack = "ack $ack_opts --match '$pattern'";
-      print $ack . "\n";
+      print "Running: " . $ack . "\n";
       system($ack);
     }
   }
