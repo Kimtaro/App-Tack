@@ -14,6 +14,10 @@ sub new {
   if ( ref $pattern eq '' ) {
     $sub = sub { [$pattern, ''] };
   }
+  else {
+    # ref CODE
+    $sub = $pattern;
+  }
 
 	my $self = bless {
 		name => $name,
