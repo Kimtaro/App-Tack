@@ -1,0 +1,7 @@
+Makefile.PL
+MANIFEST
+lib/App/Tack.pm
+lib/App/Tack/template.pm
+t/tack.t
+tack
+
