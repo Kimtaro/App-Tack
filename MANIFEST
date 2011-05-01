@@ -1,7 +1,7 @@
 Makefile.PL
 MANIFEST
 lib/App/Tack.pm
-lib/App/Tack/template.pm
+lib/App/Tack/Template.pm
 t/tack.t
 tack
 
