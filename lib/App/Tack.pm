@@ -13,9 +13,10 @@ BEGIN {
 
 use App::Tack::Template;
 
+# TODO: Handle ack options
 # TODO: How to insert a constant into a regex?
 # TODO: Handle flags for patterns
-# TODO: Better handling of optional <ARG> interpolations
+# TODO: Actual handling of optional <ARG> interpolations
 our @templates = (
   App::Tack::Template->new('map', '\b(def|class|module|private|protected)\b', 'Map Ruby files'),
   App::Tack::Template->new('name', sub {
