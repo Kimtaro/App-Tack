@@ -1,5 +1,12 @@
 #!/usr/bin/env perl
 
+BEGIN {
+  use FindBin;
+  if ( -f "$FindBin::Bin/Makefile.PL" ) {
+    use lib "$FindBin::Bin/lib";
+  }
+}
+
 use warnings;
 use strict;
 
