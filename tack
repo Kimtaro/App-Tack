@@ -1,13 +1,7 @@
 #!/usr/bin/env perl
 
-BEGIN {
-  push @INC, '/Users/kim/Development/mine/tack/lib/';
-}
-
-use App::Tack;
-
 use warnings;
 use strict;
-use Data::Dumper;
 
+use App::Tack;
 App::Tack::run( shift(@ARGV), @ARGV );
